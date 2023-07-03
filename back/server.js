@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota para exibir o arquivo index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Função para importar um arquivo JSON para uma coleção específica no MongoDB
@@ -111,7 +111,7 @@ importJSONFilesToMongoDB()
 
     // Iniciar o servidor
     app.listen(port, () => {
-      console.log(`Servidor rodando em http://localhost:${port}/home.html`);
+      console.log(`Servidor rodando em http://localhost:${port}/index.html`);
     });
   })
   .catch((err) => {
