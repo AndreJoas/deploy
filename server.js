@@ -11,12 +11,15 @@ const uri = 'mongodb+srv://andrejoas:meutcc@cluster0.taa4fgi.mongodb.net/';
 const dbName = 'dadosRaio';
 
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota para exibir o arquivo index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname,'/index.html');
+  res.sendFile(indexPath);
 });
+
+// Rota para servir arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Função para importar um arquivo JSON para uma coleção específica no MongoDB
 async function importJSONToCollection(filePath, collectionName) {
@@ -104,14 +107,14 @@ importJSONFilesToMongoDB()
 
         res.json(collectionDocuments);
       } catch (err) {
-        console.error('Errom ao conectar ou buscar dados:', err);
+        console.error('Erro ao conectar ou buscar dados:', err);
         res.status(500).send('Erro ao buscar dados');
       }
     });
 
     // Iniciar o servidor
     app.listen(port, () => {
-      console.log(`Servidor rodando em http://localhost:${port}/index.html`);
+      console.log(`Servidor rodando em http://localhost:${port}/`);
     });
   })
   .catch((err) => {
