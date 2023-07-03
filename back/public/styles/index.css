@@ -1,0 +1,433 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+
+}
+
+.mapa {
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h2 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    padding: 2px;
+    margin: 2px;
+    margin-top: 1rem;
+    font-weight: 800;
+}
+
+#map {
+    max-width: 100%;
+    width: 95%;
+    display: flex;
+    height: 430px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.retanguloFiltro {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    width: 80%;
+    padding: 3px;
+    margin: 4px;
+    justify-content: center;
+    align-items: center;
+    transition: 1s;
+}
+
+.mesTipo {
+    max-width: 100%;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    align-items: center;
+    flex-direction: row;
+}
+
+.mes,
+.tipo {
+    max-width: 100%;
+    width: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+    margin: 2px;
+}
+
+#month,
+#type {
+    max-width: 100%;
+    width: 40%;
+    height: 30px;
+    font-size: 16px;
+    outline: none;
+    border: 2px #000000 solid;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.porQuantidade {
+    max-width: 100%;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+#quantity {
+    max-width: 100%;
+    width: 20%;
+    height: 30px;
+    font-size: 16px;
+    outline: none;
+    margin-top: 0.2rem;
+    border: 2px #000000 solid;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.naTela {
+    max-width: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.porData {
+    max-width: 100%;
+    width: 90%;
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    align-items: center;
+    flex-direction: row;
+    padding: 3px;
+    margin: 3px;
+}
+
+.final,
+.inicial {
+    max-width: 100%;
+    width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    gap: 10px;
+    font-size: 16px;
+    outline: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#startDate,
+#endDate {
+    max-width: 100%;
+    width: 40%;
+    height: 30px;
+    font-size: 16px;
+    outline: none;
+    border: 2px #000000 solid;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.botoes {
+    
+    max-width: 100%;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    align-items: center;
+    flex-direction: row;
+}
+
+.bt1 {
+
+    max-width: 100%;
+    width: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+    margin: 2px;
+     
+}
+
+#btnFilter,
+#btnReset {
+    max-width: 100%;
+    width: 60%;
+    height: 30px;
+    font-size: 16px;
+    outline: none;
+    border: 2px #000000 solid;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    transition: 1s;
+    background: #d4d0d0;
+}
+
+#btnFilter:hover {
+    background: #000000;
+    color: #Fff;
+}
+
+#btnReset:hover {
+    background: #000000;
+    color: #Fff;
+}
+
+@media(max-width:1000px) {
+    .retanguloFiltro {
+        width: 95%;
+    }
+
+    .mesTipo {
+        width: 95%;
+    }
+
+    #month,
+    #type {
+        width: 65%;
+    }
+
+    .porQuantidade {
+        width: 95%;
+
+    }
+
+    #quantity {
+        width: 35%;
+
+    }
+
+    .naTela {
+        width: 85%;
+
+    }
+
+    .porData {
+        width: 95%;
+    }
+
+    .final,
+    .inicial {
+        width: 65%;
+
+    }
+
+    #startDate,
+    #endDate {
+        width: 45%;
+    }
+
+    .botoes {
+        width: 95%;
+
+    }
+
+    .bt1 {
+        width: 35%;
+
+    }
+
+    #btnFilter,
+    #btnReset {
+        width: 45%;
+
+    }
+}
+
+@media(max-width:832px) {
+    .retanguloFiltro {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    #map {
+        max-width: 80%;
+        width: 100%;
+    }
+
+    .mesTipo {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #month,
+    #type {
+        width: 100%;
+    }
+
+    .porQuantidade {
+        width: 100%;
+
+    }
+
+    #quantity {
+        width: 35%;
+
+    }
+
+    .naTela {
+        width: 85%;
+
+    }
+
+    .porData {
+        width: 95%;
+    }
+
+    .final,
+    .inicial {
+        width: 65%;
+
+    }
+
+    #startDate,
+    #endDate {
+        width: 45%;
+    }
+
+    .botoes {
+        width: 95%;
+
+    }
+
+    .bt1 {
+        width: 50%;
+
+    }
+
+    #btnFilter,
+    #btnReset {
+        width: 65%;
+
+    }
+}
+
+
+/* ======= */
+
+
+@media(max-width:702px) {
+    .mapa{
+        width: 80%;
+    }
+    .retanguloFiltro {
+        width: 100%;
+        flex-wrap: wrap;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
+
+    .mesTipo {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    #map {
+        max-width: 50%;
+        width: 100%;
+    }
+
+    #month,
+    #type {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .porQuantidade {
+        width: 100%;
+        flex-direction: column;
+
+    }
+
+    #quantity {
+        width: 35%;
+        flex-direction: column;
+
+    }
+
+    .naTela {
+        width: 85%;
+        flex-direction: column;
+
+    }
+
+    .porData {
+        width: 95%;
+        flex-direction: column;
+
+    }
+
+    .final,
+    .inicial {
+        width: 65%;
+        flex-direction: column;
+
+    }
+
+    #startDate,
+    #endDate {
+        width: 45%;
+        flex-direction: column;
+
+    }
+
+    .botoes {
+        width: 95%;
+        flex-direction: column;
+
+
+    }
+
+    .bt1 {
+        width: 50%;
+        flex-direction: column;
+
+
+    }
+
+    #btnFilter,
+    #btnReset {
+        width: 65%;
+        flex-direction: column;
+
+    }
+}

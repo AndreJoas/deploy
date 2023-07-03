@@ -1,0 +1,312 @@
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const port = 3002;
+
+const uri = 'mongodb+srv://andrejoas:meutcc@cluster0.taa4fgi.mongodb.net/';
+const dbName = 'dadosRaio';
+const collectionName = 'dadosFevereiro';
+
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Rota para exibir o arquivo index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+app.get('/api', async (req, res) => {
+  try {
+    const { month, quantity, type, time } = req.query; // Obter os filtros da query string
+
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    // Construir o filtro com base nos parâmetros fornecidos
+    const filter = {};
+    if (month) {
+      filter.month = parseInt(month);
+    }
+    if (quantity) {
+      filter.quantity = parseInt(quantity);
+    }
+    if (type) {
+      filter.type = parseInt(type);
+    }
+    if (time) {
+      filter.time_utc = new Date(time);
+    }
+
+    const projection = { _id: 0, type: 1, latitude: 1, longitude: 1, time_utc: 1 };
+
+    const documents = await collection.find(filter, { projection }).sort({ _id: 1 }).limit(20000).toArray();
+
+    res.json(documents);
+  } catch (err) {
+    console.error('Erro ao conectar ou buscar dados:', err);
+    res.status(500).send('Erro ao buscar dados');
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}/home.html`);
+});
+
+
+
+
+================
+
+
+codigo html
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Mapa</title>
+
+    <!-- CSS do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- CSS do Leaflet.heat -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.heat/dist/leaflet-heat.css" />
+    <link rel="stylesheet" href="styles/index.css">
+    
+</head>
+
+<body>
+    <div class="mapa">
+        <h2>Mapa abaixo</h2>
+        <div id="map"></div>
+    </div>
+   <div class="retanguloFiltro">
+    <div class="mesTipo">
+        <div class="mes">
+            <select name="month" id="month">
+                <option value="">Selecione o mês</option>
+                <option value="all">Todos os meses</option>
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <!-- Adicione os demais meses aqui -->
+            </select>
+        </div>
+        <div class="tipo">
+            <select name="type" id="type">
+                <option value="">Selecione o tipo de raio</option>
+                <option value="1">1</option>
+                <option value="0">0</option>
+                <option value="40">40</option>
+                <!-- Adicione os demais tipos aqui -->
+            </select>
+        </div>
+    </div>
+    <div class="porQuantidade">
+        <input type="number" id="quantity" name="quantity" placeholder="Digite a quantidade" min="1">
+        <div class="naTela">
+            <p id="resultCount"></p>
+            <p id="maxCount"></p>
+        </div>
+
+    </div>
+
+    <div class="porData">
+        <div class="inicial">
+            <label for="startDate">Data Inicial:</label>
+            <input type="date" id="startDate" name="startDate">
+        </div>
+        <div class="final">
+            <label for="endDate">Data Final:</label>
+            <input type="date" id="endDate" name="endDate">
+        </div>
+    </div>
+    <div class="botoes">
+        <div class="bt1">
+            <button id="btnFilter">Filtrar</button>
+        </div>
+        <div class="bt1">
+            <button id="btnReset">Limpar Filtros</button>
+        </div>
+    </div>
+
+   </div> 
+    
+    <!-- JavaScript do Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- JavaScript do Leaflet.heat -->
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script>
+        // Função para inicializar o mapa e adicionar os marcadores e mapa de calor
+        function initMap(points) {
+            // Criação do mapa
+            var map = L.map('map').setView([0, 0], 4);
+
+            // Adicionar camada do mapa base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Array para armazenar todos os marcadores
+            var markers = [];
+
+            // Array para armazenar as coordenadas dos pontos de calor
+            var heatPoints = [];
+
+            // Função para adicionar um marcador no mapa
+            function addMarker(point) {
+                var markerIcon;
+
+                // Definir ícone personalizado com base no tipo de ponto
+                if (point.type === '1') {
+                    markerIcon = L.icon({
+                        iconUrl: 'pontoAmarelo.png',
+                        iconSize: [33, 45],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34]
+                    });
+                } else if (point.type === '0') {
+                    markerIcon = L.icon({
+                        iconUrl: 'pontoAzul.png',
+                        iconSize: [50, 45],
+                        iconAnchor: [20, 41],
+                        popupAnchor: [1, -34]
+                    });
+                } else if (point.type === '40') {
+                    markerIcon = L.icon({
+                        iconUrl: 'pontoRed.png',
+                        iconSize: [27, 45],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34]
+                    });
+                } else {
+                    markerIcon = L.icon({
+                        iconUrl: 'default-marker-icon.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34]
+                    });
+                }
+
+                var marker = L.marker([point.latitude, point.longitude], { icon: markerIcon }).addTo(map);
+                marker.bindPopup(`Raio do tipo: ${point.type}`);
+                markers.push(marker);
+            }
+
+            // Função para remover todos os marcadores do mapa
+            function removeMarkers() {
+                for (var i = 0; i < markers.length; i++) {
+                    map.removeLayer(markers[i]);
+                }
+            }
+
+            // Função para atualizar os marcadores e mapa de calor com base nos filtros selecionados
+            function updateMarkers() {
+                var selectedMonth = document.getElementById('month').value;
+                var selectedQuantity = parseInt(document.getElementById('quantity').value);
+                var selectedType = document.getElementById('type').value;
+                var startDate = document.getElementById('startDate').value;
+                var endDate = document.getElementById('endDate').value;
+
+                // Remover todos os marcadores do mapa
+                removeMarkers();
+
+                // Limpar as coordenadas dos pontos de calor
+                heatPoints = [];
+
+                // Filtrar os pontos com base nos filtros selecionados
+                var filteredPoints = points.filter(function (point) {
+                    // Filtro pelo mês
+                    if (selectedMonth !== 'all' && point.time_utc.substring(5, 7) !== selectedMonth) {
+                        return false;
+                    }
+
+                    // Filtro pelo tipo
+                    if (selectedType !== '' && point.type !== selectedType) {
+                        return false;
+                    }
+
+                    // Filtro pela data
+                    if (startDate !== '' && endDate !== '') {
+                        var pointDate = new Date(point.time_utc).getTime();
+                        var startDateTimestamp = new Date(startDate).getTime();
+                        var endDateTimestamp = new Date(endDate).getTime();
+
+                        if (pointDate < startDateTimestamp || pointDate > endDateTimestamp) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+
+                // Limitar a quantidade de pontos de acordo com o filtro de quantidade
+                if (!isNaN(selectedQuantity) && selectedQuantity >= 1 && filteredPoints.length > selectedQuantity) {
+                    filteredPoints = filteredPoints.slice(0, selectedQuantity);
+                }
+
+                // Adicionar os marcadores filtrados no mapa
+                filteredPoints.forEach(function (point) {
+                    addMarker(point);
+                    heatPoints.push([point.latitude, point.longitude]);
+                });
+
+                // Criar a camada de mapa de calor com base nos pontos filtrados
+                var heatLayer = L.heatLayer(heatPoints, { radius: 25 }).addTo(map);
+
+                // Atualizar a contagem de pontos retornados
+                document.getElementById('resultCount').textContent = 'Quantidade de pontos retornados: ' + filteredPoints.length;
+            }
+
+            // Limpar os filtros e mostrar todos os marcadores quando o botão "Limpar Filtros" for clicado
+            document.getElementById('btnReset').addEventListener('click', function () {
+                document.getElementById('month').value = '';
+                document.getElementById('quantity').value = '';
+                document.getElementById('type').value = '';
+                document.getElementById('startDate').value = '';
+                document.getElementById('endDate').value = '';
+                updateMarkers();
+            });
+
+            // Atualizar os marcadores iniciais com base nos filtros selecionados
+            updateMarkers();
+
+            // Evento de clique no botão de filtro
+            document.getElementById('btnFilter').addEventListener('click', updateMarkers);
+
+            // Exibir a quantidade máxima de pontos no mapa
+            document.getElementById('maxCount').textContent = 'Quantidade máxima de pontos no mapa: ' + points.length;
+        }
+
+        // Função para buscar os pontos do servidor e inicializar o mapa
+        function fetchPointsAndInitMap() {
+            fetch('/api') // Substitua pela URL correta da sua API
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (points) {
+                    initMap(points);
+                })
+                .catch(function (error) {
+                    console.error('Erro ao buscar pontos:', error);
+                });
+        }
+
+        // Chamar a função para buscar os pontos e inicializar o mapa quando o documento estiver pronto
+        document.addEventListener('DOMContentLoaded', fetchPointsAndInitMap);
+
+        // Chamar a função ao carregar a página
+        fetchPointsAndInitMap();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,70 @@
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const port = 3002;
+
+const uri = 'mongodb+srv://andrejoas:meutcc@cluster0.taa4fgi.mongodb.net/';
+const dbName = 'dadosRaio';
+const collectionName = 'dadosFevereiro';
+
+app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Rota para exibir o arquivo home.html
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+app.get('/api', async (req, res) => {
+  try {
+    const { month, quantity, type, date, time } = req.query; // Obter os filtros da query string
+
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    // Construir o filtro com base nos parâmetros fornecidos
+    const filter = {};
+    if (month) {
+      filter.month = parseInt(month);
+    }
+    if (quantity) {
+      filter.quantity = parseInt(quantity);
+    }
+    if (type) {
+      filter.type = type;
+    }
+    if (date) {
+      filter.date = date;
+    }
+    if (time) {
+      filter.time_utc = new Date(time);
+    }
+
+    const projection = { _id: 0, type: 1, latitude: 1, longitude: 1, time_utc: 1 };
+
+    const documents = await collection
+      .find(filter, { projection })
+      .limit(20)
+      .toArray();
+
+    res.json(documents);
+  } catch (err) {
+    console.error('Erro ao conectar ou buscar dados:', err);
+    res.status(500).send('Erro ao buscar dados');
+  }
+});
+
+// Redirecionamento da rota raiz para /home
+app.get('/', (req, res) => {
+  res.redirect('/home');
+});
+
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}/home.html`);
+});
