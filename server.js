@@ -14,7 +14,7 @@ app.use(cors());
 
 // Rota para exibir o arquivo index.html
 app.get('/', (req, res) => {
-  const indexPath = path.join(__dirname,'index.html');
+  const indexPath = path.join(__dirname,'/index.html');
   res.sendFile(indexPath);
 });
 
